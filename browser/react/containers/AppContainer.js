@@ -23,6 +23,7 @@ export default class AppContainer extends Component {
     this.prev = this.prev.bind(this);
     this.selectAlbum = this.selectAlbum.bind(this);
     this.selectArtist = this.selectArtist.bind(this);
+    this.selectPlaylist = this.selectPlaylist.bind(this);
     this.setPlaylists = this.setPlaylists.bind(this);
   }
 
@@ -128,6 +129,25 @@ export default class AppContainer extends Component {
       .then(data => this.onLoadArtist(...data));
   }
 
+  selectPlaylist (playlistId) {
+    Promise
+      .all([
+        axios.get(`/api/playlists/${playlistId}`),
+        axios.get(`/api/playlists/${playlistId}/songs`)
+      ])
+      .then(res => res.map(r => r.data))
+      .then(data => this.onLoadPlaylist(...data));
+  }
+  onLoadPlaylist (name, songs) {
+    songs = songs.map(convertSong);
+    // albums = convertAlbums(albums);
+    // artist.albums = albums;
+    // this.statplaylist.songs = songs;
+    console.log('Playlist get from DB', { name: name, songs: songs } );
+
+    this.setState({ selectedPlaylist: { name: name, songs: songs } });
+  }
+
   onLoadArtist (artist, albums, songs) {
     songs = songs.map(convertSong);
     albums = convertAlbums(albums);
@@ -144,7 +164,8 @@ export default class AppContainer extends Component {
       toggle: this.toggle,
       selectAlbum: this.selectAlbum,
       selectArtist: this.selectArtist,
-      setPlaylists: this.setPlaylists
+      setPlaylists: this.setPlaylists,
+      selectPlaylist: this.selectPlaylist
     });
 
     return (

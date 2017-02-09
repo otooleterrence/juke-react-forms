@@ -13198,6 +13198,7 @@ var AppContainer = function (_Component) {
     _this.prev = _this.prev.bind(_this);
     _this.selectAlbum = _this.selectAlbum.bind(_this);
     _this.selectArtist = _this.selectArtist.bind(_this);
+    _this.selectPlaylist = _this.selectPlaylist.bind(_this);
     _this.setPlaylists = _this.setPlaylists.bind(_this);
     return _this;
   }
@@ -13325,6 +13326,30 @@ var AppContainer = function (_Component) {
       });
     }
   }, {
+    key: 'selectPlaylist',
+    value: function selectPlaylist(playlistId) {
+      var _this6 = this;
+
+      Promise.all([_axios2.default.get('/api/playlists/' + playlistId), _axios2.default.get('/api/playlists/' + playlistId + '/songs')]).then(function (res) {
+        return res.map(function (r) {
+          return r.data;
+        });
+      }).then(function (data) {
+        return _this6.onLoadPlaylist.apply(_this6, _toConsumableArray(data));
+      });
+    }
+  }, {
+    key: 'onLoadPlaylist',
+    value: function onLoadPlaylist(name, songs) {
+      songs = songs.map(_utils.convertSong);
+      // albums = convertAlbums(albums);
+      // artist.albums = albums;
+      // this.statplaylist.songs = songs;
+      console.log('Playlist get from DB', { name: name, songs: songs });
+
+      this.setState({ selectedPlaylist: { name: name, songs: songs } });
+    }
+  }, {
     key: 'onLoadArtist',
     value: function onLoadArtist(artist, albums, songs) {
       songs = songs.map(_utils.convertSong);
@@ -13343,7 +13368,8 @@ var AppContainer = function (_Component) {
         toggle: this.toggle,
         selectAlbum: this.selectAlbum,
         selectArtist: this.selectArtist,
-        setPlaylists: this.setPlaylists
+        setPlaylists: this.setPlaylists,
+        selectPlaylist: this.selectPlaylist
       });
 
       return _react2.default.createElement(
@@ -14661,7 +14687,7 @@ var Sidebar = function Sidebar(props) {
             { key: playlist.id, className: 'playlist-item menu-item' },
             _react2.default.createElement(
               _reactRouter.Link,
-              { to: 'FILL_ME_IN' },
+              { to: '/playlists/' + playlist.id },
               playlist.name
             )
           );
@@ -14702,7 +14728,8 @@ var initialState = {
   currentSongList: [],
   isPlaying: false,
   progress: 0,
-  playlists: []
+  playlists: [],
+  selectedPlaylist: {}
 };
 
 exports.default = initialState;
@@ -29262,6 +29289,10 @@ var _PlaylistContainer = __webpack_require__(126);
 
 var _PlaylistContainer2 = _interopRequireDefault(_PlaylistContainer);
 
+var _Playlist = __webpack_require__(273);
+
+var _Playlist2 = _interopRequireDefault(_Playlist);
+
 var _FilterableArtistsContainer = __webpack_require__(125);
 
 var _FilterableArtistsContainer2 = _interopRequireDefault(_FilterableArtistsContainer);
@@ -29278,6 +29309,7 @@ _reactDom2.default.render(_react2.default.createElement(
     _react2.default.createElement(_reactRouter.Route, { path: '/albums/:albumId', component: _Album2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/artists', component: _FilterableArtistsContainer2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/newplaylist', component: _PlaylistContainer2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: '/playlists/:playlistId', component: _Playlist2.default }),
     _react2.default.createElement(
       _reactRouter.Route,
       { path: '/artists/:artistId', component: _Artist2.default },
@@ -29287,6 +29319,89 @@ _reactDom2.default.render(_react2.default.createElement(
     _react2.default.createElement(_reactRouter.IndexRedirect, { to: '/albums' })
   )
 ), document.getElementById('app'));
+
+/***/ }),
+/* 273 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(4);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRouter = __webpack_require__(16);
+
+var _Songs = __webpack_require__(77);
+
+var _Songs2 = _interopRequireDefault(_Songs);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Playlist = function (_React$Component) {
+  _inherits(Playlist, _React$Component);
+
+  function Playlist() {
+    _classCallCheck(this, Playlist);
+
+    return _possibleConstructorReturn(this, (Playlist.__proto__ || Object.getPrototypeOf(Playlist)).apply(this, arguments));
+  }
+
+  _createClass(Playlist, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var playlistId = this.props.routeParams.playlistId;
+
+      this.props.selectPlaylist(playlistId);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+
+      // const artist = this.props.selectedArtist;
+      // const albums = artist.albums || [];
+      // const songs = artist.songs || [];
+      // const children = this.props.children;
+      var playlist = this.props.selectedPlaylist;
+      console.log(this.props);
+
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'h3',
+          null,
+          playlist.name
+        ),
+        _react2.default.createElement(_Songs2.default, { songs: playlist.songs }),
+        ' ',
+        playlist.songs && !playlist.songs.length && _react2.default.createElement(
+          'small',
+          null,
+          'No songs.'
+        ),
+        _react2.default.createElement('hr', null)
+      );
+    }
+  }]);
+
+  return Playlist;
+}(_react2.default.Component);
+
+exports.default = Playlist;
 
 /***/ })
 /******/ ]);
