@@ -25,7 +25,7 @@ class NewPlaylist extends React.Component {
         </fieldset>
       </form>
     </div>
-  )}
+  );}
 }
 
 export default NewPlaylist;

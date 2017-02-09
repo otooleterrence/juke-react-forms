@@ -24,12 +24,8 @@ class PlaylistContainer extends React.Component {
 
   handleSubmit(submissionEvent){
     submissionEvent.preventDefault();
-
-    axios.post('/api/playlists', {name: this.state.inputValue})
-    .then(res => res.data)
-    .then(result => {
-      console.log(result) // response json from the server!
-    });
+    //post request sends to server from AppContainer
+    this.props.setPlaylists(this.state.inputValue);
     this.setState({inputValue: ''});
   }
 
@@ -49,7 +45,7 @@ class PlaylistContainer extends React.Component {
 
     return (
       <div>
-        <NewPlaylist handleChange={this.handleChange} handleSubmit={this.handleSubmit} formValue={this.state.inputValue}/>
+        <NewPlaylist handleChange={this.handleChange} handleSubmit={this.handleSubmit} formValue={this.state.inputValue} isInvalid={isInvalid} />
       </div>
     );
   }
